@@ -18,7 +18,7 @@
 window.findNRooksSolution = function(n) {
   var solution = undefined; //fixme
 
-  console.log('Single solution for ' + n + ' rooks:', JSON.stringify(solution));
+  // console.log('Single solution for ' + n + ' rooks:', JSON.stringify(solution));
   return solution;
 };
 
@@ -26,7 +26,7 @@ window.findNRooksSolution = function(n) {
 window.countNRooksSolutions = function(n) {
   var solutionCount = undefined; //fixme
 
-  console.log('Number of solutions for ' + n + ' rooks:', solutionCount);
+  // console.log('Number of solutions for ' + n + ' rooks:', solutionCount);
   return solutionCount;
 };
 
@@ -34,7 +34,7 @@ window.countNRooksSolutions = function(n) {
 window.findNQueensSolution = function(n) {
   var solution = undefined; //fixme
 
-  console.log('Single solution for ' + n + ' queens:', JSON.stringify(solution));
+  // console.log('Single solution for ' + n + ' queens:', JSON.stringify(solution));
   return solution;
 };
 
@@ -42,6 +42,6 @@ window.findNQueensSolution = function(n) {
 window.countNQueensSolutions = function(n) {
   var solutionCount = undefined; //fixme
 
-  console.log('Number of solutions for ' + n + ' queens:', solutionCount);
+  // console.log('Number of solutions for ' + n + ' queens:', solutionCount);
   return solutionCount;
 };
