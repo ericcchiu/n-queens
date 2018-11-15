@@ -116,6 +116,7 @@ window.countNQueensSolutions = function(n) {
     constructor(matrix){
       this.board = matrix;
       this.n = matrix.length
+      this.hasAnyRooksConflicts = this.hasAnyRooksConflicts.bind(this);
     }
 
   getFirstRowColumnIndexForMajorDiagonalOn(rowIndex, colIndex) {
