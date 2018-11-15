@@ -13,110 +13,195 @@
 
 // return a matrix (an array of arrays) representing a single nxn chessboard, with n rooks placed such that none of them can attack each other
 
-const genValidSolutions = (currBoard) => { 
-  const resultArr = []; 
-  console.log(currBoard)
-  
-  // const sepBoard = currBoard.rows(); 
-  for (let row = 0; row < currBoard.n; row++) { 
-    for (let col = 0; col < currBoard.n; col++) { 
-      if (currBoard.board[row][col] === 0) {
-        currBoard.board[row][col] = 1;
-        if (!currBoard.hasAnyRooksConflicts()) {
-          let copyCurrBoard = {...currBoard}
-          resultArr.push(copyCurrBoard); 
-        }
-        currBoard.board[row][col] = 0;
-        } 
-    }
+const genValidRooksSolutions = (currBoard) => { 
+  const resultArr = [];
+  let row = numRooks(currBoard)
+  let maxColIndex = Math.ceil(currBoard.n / 2); 
+
+  if (row > 0) { 
+    maxColIndex = currBoard.n; 
+  }
+   
+  for (let col = 0; col < maxColIndex; col++) { 
+    if (currBoard.matrix[row][col] === 0) {
+      currBoard.matrix[row][col] = 1;
+      if (!currBoard.hasAnyRooksConflicts()) {
+        let matrixCopy = deep2DCopy(currBoard.matrix);
+        let copyCurrBoard = new Board(matrixCopy);
+        resultArr.push(copyCurrBoard); 
+        
+      }
+      currBoard.matrix[row][col] = 0;
+      } 
   }
   return resultArr; 
 }
+
+
+const deep2DCopy = (matrix) => {
+  let copy = [];
+  for (let i = 0; i < matrix.length; i++) {
+    copy.push(matrix[i].slice());
+  }
+  return copy;
+}
+
+const invertThis = (matrix) => { 
+  
+  const copyMatrix = deep2DCopy(matrix);
+
+  for (let i = 0; i < matrix.length; i++) { 
+    copyMatrix[i].reverse()
+  }
+  
+  return JSON.stringify(copyMatrix);
+}
+
+const genValidQueensSolutions = (currBoard) => {
+  const resultArr = [];
+  let row = numRooks(currBoard)
+  let maxColIndex = Math.ceil(currBoard.n / 2); 
+
+  if (row > 0) { 
+    maxColIndex = currBoard.n; 
+  }
+
+  for (let col = 0; col < maxColIndex; col++) { 
+    if (currBoard.matrix[row][col] === 0) {
+      currBoard.matrix[row][col] = 1;
+      if (!currBoard.hasAnyQueensConflicts()) {
+        let matrixCopy = deep2DCopy(currBoard.matrix);
+        let copyCurrBoard = new Board(matrixCopy);
+        resultArr.push(copyCurrBoard); 
+      }
+      currBoard.matrix[row][col] = 0;
+      } 
+  }
+  return resultArr; 
+}
+
+
 
 const numRooks = (board) => { 
   var numPieces = 0 ;
     for (let i = 0; i < board.n; i++) { 
       for (let j = 0 ; j < board.n; j++) { 
-        numPieces += board.board[i][j]; 
+        numPieces += board.matrix[i][j]; 
       }
     }
   return numPieces;
 }
+
 
 window.findNRooksSolution = function(n) {
   let emptyMatrix = makeEmptyMatrix(n)
   let currBoard = new Board(emptyMatrix)
   for (let row = 0; row < n; row++){
     for (let col = 0; col < n; col++) { 
-      currBoard.board[row][col] = 1;
+      currBoard.matrix[row][col] = 1;
       if (currBoard.hasAnyRooksConflicts()) {
-        currBoard.board[row][col] = 0;
+        currBoard.matrix[row][col] = 0;
       }
     }
   }
-
-  // console.log('Single solution for ' + n + ' rooks:', JSON.stringify(currBoard.rows()));
-  return currBoard.board;
+  return currBoard.matrix;
 };
 
-// return the number of nxn chessboards that exist, with n rooks placed such that none of them can attack each other
-window.countNRooksSolutions = function(n) {
 
+window.countNRooksSolutions = function(n) {
   let permutations = []; 
   let emptyMatrix = makeEmptyMatrix(n)
   let newBoard = new Board(emptyMatrix)
-  console.log(newBoard)
   const backTrackRecursive = (board => { 
-    //console.log(board.rows());
-    if (numRooks(board) === n ) { 
-      if (!permutations.includes(board.board)) { 
-        permutations.push(board.board); 
-  
+    if (numRooks(board) === n ) {
+      let invertedArr = invertThis(board.matrix); // returns an inverted stringified arr 
+      let stringifiedSolution = JSON.stringify(board.matrix);
+      if (!permutations.includes(invertedArr)) { 
+        permutations.push(invertedArr); 
+      }
+      
+      if (!permutations.includes(stringifiedSolution)) { 
+        permutations.push(stringifiedSolution); 
       }
     } else { 
-      let validBoards = genValidSolutions(board); 
+      let validBoards = genValidRooksSolutions(board); 
 
       validBoards.forEach((singleBoard) => { 
-        backTrackRecursive(singleBoard).bind(this); 
+        backTrackRecursive(singleBoard); 
       }); 
     }
   });
-  backTrackRecursive(newBoard).bind(this);
+  backTrackRecursive(newBoard);
+  // if (n <2) return 1; 
   return permutations.length;
 };
 
-// return a matrix (an array of arrays) representing a single nxn chessboard, with n queens placed such that none of them can attack each other
-window.findNQueensSolution = function(n) {
-  var solution = undefined; //fixme
 
-  // console.log('Single solution for ' + n + ' queens:', JSON.stringify(solution));
+window.findNQueensSolution = function(n) {
+  if (n === 2 || n === 3) { return makeEmptyMatrix(n);}
+  //if (n===1) {return 1}
+  let solution = []; 
+  let emptyMatrix = makeEmptyMatrix(n)
+  let newBoard = new Board(emptyMatrix)
+  const backTrackRecursive = (board => { 
+    if (numRooks(board) === n ) {
+      solution = board.matrix; 
+    } else { 
+      let validBoards = genValidQueensSolutions(board); 
+      validBoards.forEach((singleBoard) => { 
+        backTrackRecursive(singleBoard); 
+      }); 
+    }
+  });
+  backTrackRecursive(newBoard);
   return solution;
 };
 
-// return the number of nxn chessboards that exist, with n queens placed such that none of them can attack each other
-window.countNQueensSolutions = function(n) {
-  var solutionCount = undefined; //fixme
 
-  // console.log('Number of solutions for ' + n + ' queens:', solutionCount);
-  return solutionCount;
+window.countNQueensSolutions = function(n) {
+ let permutations = []; 
+ let emptyMatrix = makeEmptyMatrix(n)
+ let newBoard = new Board(emptyMatrix)
+
+ const backTrackRecursive = (board => { 
+   if (numRooks(board) === n ) {
+     let invertedArr = invertThis(board.matrix); // returns an inverted stringified arr 
+     let stringifiedSolution = JSON.stringify(board.matrix);
+     if (!permutations.includes(invertedArr)) { 
+       permutations.push(invertedArr); 
+     }
+
+     if (!permutations.includes(stringifiedSolution)) { 
+       permutations.push(stringifiedSolution); 
+     }
+   } else { 
+     let validBoards = genValidQueensSolutions(board); 
+
+     validBoards.forEach((singleBoard) => { 
+       backTrackRecursive(singleBoard); 
+     }); 
+   }
+ });
+ backTrackRecursive(newBoard);
+ // if (n <2) return 1; 
+ //console.log(permutations);
+ return permutations.length;
 };
 
 
-  var makeEmptyMatrix = function(n) {
+var makeEmptyMatrix = function(n) {
+  return _(_.range(n)).map(function() {
     return _(_.range(n)).map(function() {
-      return _(_.range(n)).map(function() {
-        return 0;
-      });
+      return 0;
     });
-  };
-
+  });
+};
 
 
   class Board {
     constructor(matrix){
-      this.board = matrix;
+      this.matrix = matrix;
       this.n = matrix.length
-      this.hasAnyRooksConflicts = this.hasAnyRooksConflicts.bind(this);
     }
 
   getFirstRowColumnIndexForMajorDiagonalOn(rowIndex, colIndex) {
@@ -152,7 +237,7 @@ window.countNQueensSolutions = function(n) {
   }
 
   hasRowConflictAt(rowIndex) {
-    let currRow = this.board[rowIndex];
+    let currRow = this.matrix[rowIndex];
     let counter = 0;
     for (let i = 0; i < this.n; i++){
         counter += currRow[i];
@@ -160,7 +245,6 @@ window.countNQueensSolutions = function(n) {
     return (counter > 1) ? true : false
   }
 
-  // test if any rows on this board contain conflicts
   hasAnyRowConflicts() {
     for (let i = 0; i < this.n; i++){
       if (this.hasRowConflictAt(i)){
@@ -170,21 +254,14 @@ window.countNQueensSolutions = function(n) {
     return false;
   }
 
-
-
-  // COLUMNS - run from top to bottom
-  // --------------------------------------------------------------
-  //
-  // test if a specific column on this board contains a conflict
   hasColConflictAt(colIndex) {
     let counter = 0;
     for (let i = 0; i < this.n; i++) {
-      counter += this.board[i][colIndex];
+      counter += this.matrix[i][colIndex];
     }
     return (counter > 1) ? true : false
   }
 
-  // test if any columns on this board contain conflicts
   hasAnyColConflicts() {
     for (let i = 0; i < this.n; i++) {
       if (this.hasColConflictAt(i)) {
@@ -194,26 +271,18 @@ window.countNQueensSolutions = function(n) {
     return false;
   }
 
-
-
-  // Major Diagonals - go from top-left to bottom-right
-  // --------------------------------------------------------------
-  //
-  // test if a specific major diagonal on this board contains a conflict
-
   hasMajorDiagonalConflictAt(majorDiagonalColumnIndexAtFirstRow) {
     let majorIndex = majorDiagonalColumnIndexAtFirstRow;
     let counter = 0; 
     // Iterate from input given to boardlength 
     for (let i = 0; i < this.n; i++) { 
       if ( majorIndex + i >= 0 && majorIndex + i < this.n) { 
-        counter += this.board[i][majorIndex + i];
+        counter += this.matrix[i][majorIndex + i];
       }
     }
     return (counter > 1) ? true: false
   }
 
-  // test if any major diagonals on this board contain conflicts
   hasAnyMajorDiagonalConflicts() {
     for (let i = -this.n + 1; i < this.n; i++) {
       if (this.hasMajorDiagonalConflictAt(i)) {
@@ -223,22 +292,17 @@ window.countNQueensSolutions = function(n) {
     return false;
   }
 
-  // Minor Diagonals - go from top-right to bottom-left
-  // --------------------------------------------------------------
-  //
-  // test if a specific minor diagonal on this board contains a conflict
   hasMinorDiagonalConflictAt(minorDiagonalColumnIndexAtFirstRow) {
     let counter = 0;
     let minorIndex = minorDiagonalColumnIndexAtFirstRow;
     for (let i = 0; i < this.n; i++){
       if (minorIndex-i >= 0 && minorIndex-i < this.n){
-        counter += this.board[i][minorIndex-i];
+        counter += this.matrix[i][minorIndex-i];
       }
     }
     return (counter > 1) ? true : false
   }
 
-  // test if any minor diagonals on this board contain conflicts
   hasAnyMinorDiagonalConflicts() {
     for (let i = 0; i <= 2 * (this.n - 1); i++){
       if (this.hasMinorDiagonalConflictAt(i)) {
